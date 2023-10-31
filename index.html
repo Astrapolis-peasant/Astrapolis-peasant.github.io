@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>API Data Rendering</title>
+</head>
+<body>
+
+<div style="display: flex; flex-direction: row;">
+    <div style="flex: 1; border: 1px solid black;">
+        <p>Exchange</p>
+        <p>curve</p>
+        <p>uniswap 0.3% </p>
+        <p>uniswap 0.05%</p>
+    </div>
+    <div style="flex: 1; border: 1px solid black;" id="apiData">
+        <p>Price</p>
+        <!-- 数据将通过 JavaScript 插入此处 -->
+    </div>
+    <div style="flex: 1; border: 1px solid black;" id="mmxLiq">
+        <p>MMX Liquidity</p>
+    </div>
+    <div style="flex: 1; border: 1px solid black;" id="usdtLiq">
+        <p>USDT Liquidity</p>
+    </div>
+    <div style="flex: 1; border: 1px solid black;" id="trade">
+        <p>Trades</p>
+    </div>
+</div>
+
+<script>
+    // 执行 API 请求并将数据插入到页面中
+    function numberWithCommas(x) {
+    return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+    }
+    function fetchDataAndRender() {
+        const apiUrls = [
+            'https://api.curve.fi/api/getPools/ethereum/factory-crypto',
+            'https://api.dexscreener.com/latest/dex/pairs/ethereum/0xaE1f34Aa9EB43aa641d791Be35583FD5F06dbfb4',
+            'https://api.dexscreener.com/latest/dex/pairs/ethereum/0x4109ab7966c5461439bdb0beda92c92fec767966'
+        ];
+
+        const tradesUrls = [
+            'https://curve.fi/#/ethereum/pools/factory-crypto-330/swap',
+            'https://www.dextools.io/app/en/ether/pair-explorer/0x4109ab7966c5461439bdb0beda92c92fec767966',
+            'https://www.dextools.io/app/en/ether/pair-explorer/0xae1f34aa9eb43aa641d791be35583fd5f06dbfb4'
+        ];
+
+        Promise.all(apiUrls.map(url => fetch(url)))
+            .then(responses => Promise.all(responses.map(res => res.json())))
+            .then(data => {
+                console.log(data)
+                const apiDataDiv = document.getElementById('apiData');
+                const mmxDiv = document.getElementById('mmxLiq');
+                const usdtDiv = document.getElementById('usdtLiq');
+                const tradeDiv = document.getElementById('trade');
+
+                const curveData = +(1 / data[0].data.poolData[330].priceOracle).toFixed(4);
+                const curveMMXLiq = numberWithCommas(data[0].data.poolData[330].coins[0].poolBalance.slice(0, -18));
+                const curveUSDTLiq = numberWithCommas(data[0].data.poolData[330].coins[1].poolBalance.slice(0, -6));
+                console.log(curveData)
+                console.log(curveMMXLiq)
+                console.log(curveUSDTLiq)
+                const uniswapData1 = data[1].pair.priceNative;
+                const uni05MMXLiq = numberWithCommas(data[1].pair.liquidity.base);
+                const uni05USDTLiq = numberWithCommas(data[1].pair.liquidity.quote);
+                console.log(uniswapData1)
+                const uniswapData2 = data[2].pair.priceNative;
+                const uni30MMXLiq = numberWithCommas(data[2].pair.liquidity.base);
+                const uni30USDTLiq = numberWithCommas(data[2].pair.liquidity.quote);
+                console.log(uniswapData2)
+
+                const para1 = document.createElement('p');
+                para1.textContent = `${JSON.stringify(curveData)}`;
+                apiDataDiv.appendChild(para1);
+                const para12 = document.createElement('p');
+                para12.textContent = curveMMXLiq;
+                mmxDiv.appendChild(para12);
+                const para13 = document.createElement('p');
+                para13.textContent = curveUSDTLiq;
+                usdtDiv.appendChild(para13);
+                const para14 = document.createElement('p');
+                const link1 = document.createElement('a');
+                link1.href = `${tradesUrls[0]}`;
+                link1.textContent = `Curve`;
+                para14.appendChild(link1);
+                tradeDiv.appendChild(para14);
+
+                const para2 = document.createElement('p');
+                para2.textContent = `${JSON.stringify(+uniswapData1)}`;
+                apiDataDiv.appendChild(para2);
+                const para22 = document.createElement('p');
+                para22.textContent = uni05MMXLiq;
+                mmxDiv.appendChild(para22);
+                const para23 = document.createElement('p');
+                para23.textContent = uni05USDTLiq;
+                usdtDiv.appendChild(para23);
+                const para24 = document.createElement('p');
+                const link2 = document.createElement('a');
+                link2.href = `${tradesUrls[1]}`;
+                link2.textContent = `uniswap`;
+                para24.appendChild(link2);
+                tradeDiv.appendChild(para24);
+
+                const para3 = document.createElement('p');
+                para3.textContent = `${JSON.stringify(+uniswapData2)}`;
+                apiDataDiv.appendChild(para3);
+                const para32 = document.createElement('p');
+                para32.textContent = uni30MMXLiq;
+                mmxDiv.appendChild(para32);
+                const para33 = document.createElement('p');
+                para33.textContent = uni30USDTLiq;
+                usdtDiv.appendChild(para33);
+                const para34 = document.createElement('p');
+                const link3 = document.createElement('a');
+                link3.href = `${tradesUrls[2]}`;
+                link3.textContent = `uniswap`;
+                para34.appendChild(link3);
+                tradeDiv.appendChild(para34);
+            })
+            .catch(error => console.error('Error fetching data:', error));
+    }
+
+    fetchDataAndRender();
+</script>
+
+</body>
+</html>
