@@ -1,127 +1,185 @@
 <!DOCTYPE html>
 <html>
+
 <head>
-    <title>API Data Rendering</title>
+    <title>MMX Prices</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/css/bootstrap.min.css"
+        integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
 </head>
+
 <body>
+    <table class="table table-striped">
+        <thead class="thead-dark">
+            <tr>
+                <th scope="col">Dex</th>
+                <th scope="col">price</th>
+                <th scope="col">MMX Liquidity</th>
+                <th scope="col">USDT Liquidity</th>
+                <th scope="col">trades</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr id="curve_data">
+                <th scope="row">curve</th>
+            </tr>
+            <tr id="uni_03">
+                <th scope="row">uniswap usdt 0.3%</th>
+            </tr>
+            <tr id="uni_005">
+                <th scope="row">uniswap usdt 0.05%</th>
+            </tr>
+        </tbody>
+        <thead class="thead-dark">
+            <tr>
+                <th scope="col">Cex</th>
+                <th scope="col">price</th>
+                <th scope="col">MMX amount 24h</th>
+                <th scope="col">USDT amount 24h</th>
+                <th scope="col">trades</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr id="m2_spot">
+                <th scope="row">M2 Spot usdt</th>
+            </tr>
+        </tbody>
+    </table>
+    <script>
+        // 执行 API 请求并将数据插入到页面中
 
-<div style="display: flex; flex-direction: row;">
-    <div style="flex: 1; border: 1px solid black;">
-        <p>Exchange</p>
-        <p>curve</p>
-        <p>uniswap 0.3% </p>
-        <p>uniswap 0.05%</p>
-    </div>
-    <div style="flex: 1; border: 1px solid black;" id="apiData">
-        <p>Price</p>
-        <!-- 数据将通过 JavaScript 插入此处 -->
-    </div>
-    <div style="flex: 1; border: 1px solid black;" id="mmxLiq">
-        <p>MMX Liquidity</p>
-    </div>
-    <div style="flex: 1; border: 1px solid black;" id="usdtLiq">
-        <p>USDT Liquidity</p>
-    </div>
-    <div style="flex: 1; border: 1px solid black;" id="trade">
-        <p>Trades</p>
-    </div>
-</div>
+        function numberWithCommas(x) {
+            return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+        }
+        function fetchDataAndRenderTableDex() {
+            const apiUrls = [
+                'https://api.curve.fi/api/getPools/ethereum/factory-crypto',
+                'https://api.dexscreener.com/latest/dex/pairs/ethereum/0xaE1f34Aa9EB43aa641d791Be35583FD5F06dbfb4',
+                'https://api.dexscreener.com/latest/dex/pairs/ethereum/0x4109ab7966c5461439bdb0beda92c92fec767966'
+            ];
 
-<script>
-    // 执行 API 请求并将数据插入到页面中
-    function numberWithCommas(x) {
-    return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-    }
-    function fetchDataAndRender() {
-        const apiUrls = [
-            'https://api.curve.fi/api/getPools/ethereum/factory-crypto',
-            'https://api.dexscreener.com/latest/dex/pairs/ethereum/0xaE1f34Aa9EB43aa641d791Be35583FD5F06dbfb4',
-            'https://api.dexscreener.com/latest/dex/pairs/ethereum/0x4109ab7966c5461439bdb0beda92c92fec767966'
-        ];
+            const tradesUrls = [
+                'https://curve.fi/#/ethereum/pools/factory-crypto-330/swap',
+                'https://www.dextools.io/app/en/ether/pair-explorer/0x4109ab7966c5461439bdb0beda92c92fec767966',
+                'https://www.dextools.io/app/en/ether/pair-explorer/0xae1f34aa9eb43aa641d791be35583fd5f06dbfb4'
+            ];
 
-        const tradesUrls = [
-            'https://curve.fi/#/ethereum/pools/factory-crypto-330/swap',
-            'https://www.dextools.io/app/en/ether/pair-explorer/0x4109ab7966c5461439bdb0beda92c92fec767966',
-            'https://www.dextools.io/app/en/ether/pair-explorer/0xae1f34aa9eb43aa641d791be35583fd5f06dbfb4'
-        ];
+            Promise.all(apiUrls.map(url => fetch(url)))
+                .then(responses => Promise.all(responses.map(res => res.json())))
+                .then(data => {
+                    console.log(data)
+                    const crvDiv = document.getElementById('curve_data');
+                    const uni03Div = document.getElementById('uni_03');
+                    const uni005Div = document.getElementById('uni_005');
 
-        Promise.all(apiUrls.map(url => fetch(url)))
-            .then(responses => Promise.all(responses.map(res => res.json())))
-            .then(data => {
-                console.log(data)
-                const apiDataDiv = document.getElementById('apiData');
-                const mmxDiv = document.getElementById('mmxLiq');
-                const usdtDiv = document.getElementById('usdtLiq');
-                const tradeDiv = document.getElementById('trade');
+                    const curve_price = +(1 / data[0].data.poolData[330].priceOracle).toFixed(4);
+                    const curveMMXLiq = numberWithCommas(data[0].data.poolData[330].coins[0].poolBalance.slice(0, -18));
+                    const curveUSDTLiq = numberWithCommas(data[0].data.poolData[330].coins[1].poolBalance.slice(0, -6));
+                    console.log(curve_price)
+                    console.log(curveMMXLiq)
+                    console.log(curveUSDTLiq)
+                    const uni03Price = data[1].pair.priceNative;
+                    const uni05MMXLiq = numberWithCommas(data[1].pair.liquidity.base);
+                    const uni05USDTLiq = numberWithCommas(data[1].pair.liquidity.quote);
+                    console.log(uni03Price)
+                    const uni005Price = data[2].pair.priceNative;
+                    const uni005MMXLiq = numberWithCommas(data[2].pair.liquidity.base);
+                    const uni005USDTLiq = numberWithCommas(data[2].pair.liquidity.quote);
+                    console.log(uni005Price)
 
-                const curveData = +(1 / data[0].data.poolData[330].priceOracle).toFixed(4);
-                const curveMMXLiq = numberWithCommas(data[0].data.poolData[330].coins[0].poolBalance.slice(0, -18));
-                const curveUSDTLiq = numberWithCommas(data[0].data.poolData[330].coins[1].poolBalance.slice(0, -6));
-                console.log(curveData)
-                console.log(curveMMXLiq)
-                console.log(curveUSDTLiq)
-                const uniswapData1 = data[1].pair.priceNative;
-                const uni05MMXLiq = numberWithCommas(data[1].pair.liquidity.base);
-                const uni05USDTLiq = numberWithCommas(data[1].pair.liquidity.quote);
-                console.log(uniswapData1)
-                const uniswapData2 = data[2].pair.priceNative;
-                const uni30MMXLiq = numberWithCommas(data[2].pair.liquidity.base);
-                const uni30USDTLiq = numberWithCommas(data[2].pair.liquidity.quote);
-                console.log(uniswapData2)
+                    const para1 = document.createElement('td');
+                    para1.textContent = `${JSON.stringify(curve_price)}`;
+                    crvDiv.appendChild(para1);
+                    const para12 = document.createElement('td');
+                    para12.textContent = curveMMXLiq;
+                    crvDiv.appendChild(para12);
+                    const para13 = document.createElement('td');
+                    para13.textContent = curveUSDTLiq;
+                    crvDiv.appendChild(para13);
+                    const para14 = document.createElement('td');
+                    const link1 = document.createElement('a');
+                    link1.href = `${tradesUrls[0]}`;
+                    link1.textContent = `Curve`;
+                    para14.appendChild(link1);
+                    crvDiv.appendChild(para14);
 
-                const para1 = document.createElement('p');
-                para1.textContent = `${JSON.stringify(curveData)}`;
-                apiDataDiv.appendChild(para1);
-                const para12 = document.createElement('p');
-                para12.textContent = curveMMXLiq;
-                mmxDiv.appendChild(para12);
-                const para13 = document.createElement('p');
-                para13.textContent = curveUSDTLiq;
-                usdtDiv.appendChild(para13);
-                const para14 = document.createElement('p');
-                const link1 = document.createElement('a');
-                link1.href = `${tradesUrls[0]}`;
-                link1.textContent = `Curve`;
-                para14.appendChild(link1);
-                tradeDiv.appendChild(para14);
+                    const para2 = document.createElement('td');
+                    para2.textContent = `${JSON.stringify(+uni03Price)}`;
+                    uni03Div.appendChild(para2);
+                    const para22 = document.createElement('td');
+                    para22.textContent = uni05MMXLiq;
+                    uni03Div.appendChild(para22);
+                    const para23 = document.createElement('td');
+                    para23.textContent = uni05USDTLiq;
+                    uni03Div.appendChild(para23);
+                    const para24 = document.createElement('td');
+                    const link2 = document.createElement('a');
+                    link2.href = `${tradesUrls[1]}`;
+                    link2.textContent = `uniswap 0.3%`;
+                    para24.appendChild(link2);
+                    uni03Div.appendChild(para24);
 
-                const para2 = document.createElement('p');
-                para2.textContent = `${JSON.stringify(+uniswapData1)}`;
-                apiDataDiv.appendChild(para2);
-                const para22 = document.createElement('p');
-                para22.textContent = uni05MMXLiq;
-                mmxDiv.appendChild(para22);
-                const para23 = document.createElement('p');
-                para23.textContent = uni05USDTLiq;
-                usdtDiv.appendChild(para23);
-                const para24 = document.createElement('p');
-                const link2 = document.createElement('a');
-                link2.href = `${tradesUrls[1]}`;
-                link2.textContent = `uniswap`;
-                para24.appendChild(link2);
-                tradeDiv.appendChild(para24);
+                    const para3 = document.createElement('td');
+                    para3.textContent = `${JSON.stringify(+uni005Price)}`;
+                    uni005Div.appendChild(para3);
+                    const para32 = document.createElement('td');
+                    para32.textContent = uni005MMXLiq;
+                    uni005Div.appendChild(para32);
+                    const para33 = document.createElement('td');
+                    para33.textContent = uni005USDTLiq;
+                    uni005Div.appendChild(para33);
+                    const para34 = document.createElement('td');
+                    const link3 = document.createElement('a');
+                    link3.href = `${tradesUrls[2]}`;
+                    link3.textContent = `uniswap 0.05%`;
+                    para34.appendChild(link3);
+                    uni005Div.appendChild(para34);
+                })
+                .catch(error => console.error('Error fetching data:', error));
+        }
 
-                const para3 = document.createElement('p');
-                para3.textContent = `${JSON.stringify(+uniswapData2)}`;
-                apiDataDiv.appendChild(para3);
-                const para32 = document.createElement('p');
-                para32.textContent = uni30MMXLiq;
-                mmxDiv.appendChild(para32);
-                const para33 = document.createElement('p');
-                para33.textContent = uni30USDTLiq;
-                usdtDiv.appendChild(para33);
-                const para34 = document.createElement('p');
-                const link3 = document.createElement('a');
-                link3.href = `${tradesUrls[2]}`;
-                link3.textContent = `uniswap`;
-                para34.appendChild(link3);
-                tradeDiv.appendChild(para34);
-            })
-            .catch(error => console.error('Error fetching data:', error));
-    }
+        function fetchDataAndRenderTableCex() {
+            const apiUrls = [
+                'https://www.m2.com/spot/v1/market/summary?symbol=MMX-USDT'
+            ];
 
-    fetchDataAndRender();
-</script>
+            const tradesUrls = [
+                'https://www.m2.com/en_AE/smart-trade/spot/MMX-USDT/',
+            ];
+
+            Promise.all(apiUrls.map(url => fetch(`https://api.allorigins.win/raw?url=${encodeURIComponent('https://www.m2.com/spot/v1/market/summary?symbol=MMX-USDT')}`)))
+                .then(responses => Promise.all(responses.map(res => res.json())))
+                .then(data => {
+                    console.log(data)
+                    const m2SpotDiv = document.getElementById('m2_spot');
+
+                    const m2SpotPrice = +(+data[0].data.latestPrice).toFixed(4);
+                    const m2SpotbaseAmount = numberWithCommas((+data[0].data.baseAmount24).toFixed(0));
+                    const m2SpotquoteAmount = numberWithCommas((+data[0].data.quoteAmount24).toFixed(0));
+                    console.log("m2SpotPrice" + m2SpotPrice)
+
+                    const para1 = document.createElement('td');
+                    para1.textContent = `${JSON.stringify(m2SpotPrice)}`;
+                    m2SpotDiv.appendChild(para1);
+                    const para12 = document.createElement('td');
+                    para12.textContent = m2SpotbaseAmount;
+                    m2SpotDiv.appendChild(para12);
+                    const para13 = document.createElement('td');
+                    para13.textContent = m2SpotquoteAmount;
+                    m2SpotDiv.appendChild(para13);
+                    const para14 = document.createElement('td');
+                    const link1 = document.createElement('a');
+                    link1.href = `${tradesUrls[0]}`;
+                    link1.textContent = `M2 Spot`;
+                    para14.appendChild(link1);
+                    m2SpotDiv.appendChild(para14);
+                })
+                .catch(error => console.error('Error fetching data:', error));
+        }
+
+        fetchDataAndRenderTableDex();
+        fetchDataAndRenderTableCex();
+    </script>
 
 </body>
+
 </html>
