@@ -25,9 +25,9 @@
             <tr id="uni_03">
                 <th scope="row">uniswap usdt 0.3%</th>
             </tr>
-            <tr id="uni_005">
+            <!-- <tr id="uni_005">
                 <th scope="row">uniswap usdt 0.05%</th>
-            </tr>
+            </tr> -->
         </tbody>
         <thead class="thead-dark">
             <tr>
@@ -59,13 +59,13 @@
             const apiUrls = [
                 'https://api.curve.fi/api/getPools/ethereum/factory-crypto',
                 'https://api.dexscreener.com/latest/dex/pairs/ethereum/0x4109ab7966c5461439bdb0beda92c92fec767966',
-                'https://api.dexscreener.com/latest/dex/pairs/ethereum/0xaE1f34Aa9EB43aa641d791Be35583FD5F06dbfb4',
+                // 'https://api.dexscreener.com/latest/dex/pairs/ethereum/0xaE1f34Aa9EB43aa641d791Be35583FD5F06dbfb4',
             ];
 
             const tradesUrls = [
                 'https://curve.fi/#/ethereum/pools/factory-crypto-330/swap',
                 'https://www.dextools.io/app/en/ether/pair-explorer/0x4109ab7966c5461439bdb0beda92c92fec767966',
-                'https://www.dextools.io/app/en/ether/pair-explorer/0xae1f34aa9eb43aa641d791be35583fd5f06dbfb4'
+                // 'https://www.dextools.io/app/en/ether/pair-explorer/0xae1f34aa9eb43aa641d791be35583fd5f06dbfb4'
             ];
 
             Promise.all(apiUrls.map(url => fetch(url)))
@@ -86,10 +86,10 @@
                     const uni05MMXLiq = numberWithCommas(data[1].pair.liquidity.base);
                     const uni05USDTLiq = numberWithCommas(data[1].pair.liquidity.quote);
                     console.log(uni03Price)
-                    const uni005Price = data[2].pair.priceNative;
-                    const uni005MMXLiq = numberWithCommas(data[2].pair.liquidity.base);
-                    const uni005USDTLiq = numberWithCommas(data[2].pair.liquidity.quote);
-                    console.log(uni005Price)
+                    // const uni005Price = data[2].pair.priceNative;
+                    // const uni005MMXLiq = numberWithCommas(data[2].pair.liquidity.base);
+                    // const uni005USDTLiq = numberWithCommas(data[2].pair.liquidity.quote);
+                    // console.log(uni005Price)
 
                     const para1 = document.createElement('td');
                     para1.textContent = `${JSON.stringify(curve_price)}`;
@@ -123,21 +123,21 @@
                     para24.appendChild(link2);
                     uni03Div.appendChild(para24);
 
-                    const para3 = document.createElement('td');
-                    para3.textContent = `${JSON.stringify(+uni005Price)}`;
-                    uni005Div.appendChild(para3);
-                    const para32 = document.createElement('td');
-                    para32.textContent = uni005MMXLiq;
-                    uni005Div.appendChild(para32);
-                    const para33 = document.createElement('td');
-                    para33.textContent = uni005USDTLiq;
-                    uni005Div.appendChild(para33);
-                    const para34 = document.createElement('td');
-                    const link3 = document.createElement('a');
-                    link3.href = `${tradesUrls[2]}`;
-                    link3.textContent = `uniswap 0.05%`;
-                    para34.appendChild(link3);
-                    uni005Div.appendChild(para34);
+                    // const para3 = document.createElement('td');
+                    // para3.textContent = `${JSON.stringify(+uni005Price)}`;
+                    // uni005Div.appendChild(para3);
+                    // const para32 = document.createElement('td');
+                    // para32.textContent = uni005MMXLiq;
+                    // uni005Div.appendChild(para32);
+                    // const para33 = document.createElement('td');
+                    // para33.textContent = uni005USDTLiq;
+                    // uni005Div.appendChild(para33);
+                    // const para34 = document.createElement('td');
+                    // const link3 = document.createElement('a');
+                    // link3.href = `${tradesUrls[2]}`;
+                    // link3.textContent = `uniswap 0.05%`;
+                    // para34.appendChild(link3);
+                    // uni005Div.appendChild(para34);
                 })
                 .catch(error => console.error('Error fetching data:', error));
         }
